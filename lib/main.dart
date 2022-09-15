@@ -5,6 +5,7 @@ import 'screens/screens.dart';
 
 void main() {
   runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => PriceProvider()),
     ChangeNotifierProvider(create: (_) => StatisticsProvider())
   ], child: const MyApp()));
 }

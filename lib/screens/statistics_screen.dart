@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:fine/resources/resources.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:xml/xml.dart' as xml;
 
 // Provider
 class StatisticsProvider extends ChangeNotifier {

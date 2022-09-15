@@ -23,8 +23,8 @@ class _MainScreenState extends State<MainScreen> {
         title = 'Statistics';
         break;
       default:
-        child_screen = const StatisticsScreen();
-        title = 'Statistics';
+        child_screen = const SpotScreen();
+        title = 'Spot Price';
     }
     return Scaffold(
       appBar: AppBar(
