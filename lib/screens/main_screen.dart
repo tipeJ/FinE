@@ -9,8 +9,9 @@ class MainScreen extends StatefulWidget {
 }
 
 enum _MainScreenTab { statistics, price, menu }
+
 class _MainScreenState extends State<MainScreen> {
-  _MainScreenTab _currentTab = _MainScreenTab.statistics;
+  _MainScreenTab _currentTab = _MainScreenTab.price;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +31,15 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(
         title: Text(title),
       ),
-      body: child_screen,
+      body: Column(
+        children: [
+          SizedBox(height: 50),
+          SizedBox(
+            child: child_screen,
+            height: 500,
+          ),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
