@@ -33,7 +33,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
       body: Column(
         children: [
-          SizedBox(height: 50),
+          SizedBox(height: 10),
           SizedBox(
             child: child_screen,
             height: 500,
