@@ -12,6 +12,7 @@ class PriceProvider extends ChangeNotifier {
   DateTime? periodStart;
   DateTime? periodEnd;
   DateTime? periodNow;
+  double? currentSpot;
 
   PriceProvider() {
     fetchSpot();
@@ -84,6 +85,7 @@ class PriceProvider extends ChangeNotifier {
         }
       }
     }
+    currentSpot = ahead_prices.first.item2;
     notifyListeners();
   }
 
@@ -144,61 +146,90 @@ class SpotScreen extends StatelessWidget {
       if (p.day_prices.isEmpty) {
         return const Center(child: CircularProgressIndicator());
       } else {
-        return LineChart(
-          LineChartData(
-            lineTouchData: LineTouchData(enabled: true),
-            gridData: FlGridData(show: true),
-            titlesData: FlTitlesData(
-                show: true,
-                rightTitles:
-                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                bottomTitles:
-                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                topTitles: AxisTitles(
-                    axisNameSize: 16,
-                    sideTitles: SideTitles(
-                        showTitles: true,
-                        // interval: 1,
-                        getTitlesWidget: ((value, meta) =>
-                            _sideTitleWidget(p, value, meta))))),
-            borderData: FlBorderData(show: false),
-            minX: 0,
-            maxX: (p.day_prices.length + p.ahead_prices.length).toDouble() - 2,
-            minY: 0,
-            lineBarsData: [
-              LineChartBarData(
-                spots: p.day_prices
-                    .asMap()
-                    .entries
-                    .map((e) => FlSpot(e.key.toDouble(), e.value.item2))
-                    .toList(),
-                isCurved: true,
-                color: Colors.blue,
-                barWidth: 2,
-                isStrokeCapRound: true,
-                dotData: FlDotData(show: false),
-                belowBarData: BarAreaData(
-                    show: true, color: Colors.blue.withOpacity(0.8)),
+        return Stack(
+          children: [
+            LineChart(
+              LineChartData(
+                lineTouchData: LineTouchData(enabled: true),
+                gridData: FlGridData(show: true),
+                titlesData: FlTitlesData(
+                    show: true,
+                    rightTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    bottomTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: AxisTitles(
+                        axisNameSize: 16,
+                        sideTitles: SideTitles(
+                            showTitles: true,
+                            // interval: 1,
+                            getTitlesWidget: ((value, meta) =>
+                                _sideTitleWidget(p, value, meta))))),
+                borderData: FlBorderData(show: false),
+                minX: 0,
+                maxX: (p.day_prices.length + p.ahead_prices.length).toDouble() -
+                    2,
+                minY: 0,
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: p.day_prices
+                        .asMap()
+                        .entries
+                        .map((e) => FlSpot(e.key.toDouble(), e.value.item2))
+                        .toList(),
+                    isCurved: true,
+                    color: Colors.blue,
+                    barWidth: 2,
+                    isStrokeCapRound: true,
+                    dotData: FlDotData(show: false),
+                    belowBarData: BarAreaData(
+                        show: true, color: Colors.blue.withOpacity(0.8)),
+                  ),
+                  LineChartBarData(
+                    spots: p.ahead_prices
+                        .asMap()
+                        .entries
+                        .map((e) => FlSpot(
+                            p.day_prices.length.toDouble() -
+                                1 +
+                                e.key.toDouble(),
+                            e.value.item2))
+                        .toList(),
+                    isCurved: true,
+                    color: Colors.blue,
+                    barWidth: 2,
+                    dashArray: [10, 10],
+                    isStrokeCapRound: true,
+                    dotData: FlDotData(show: false),
+                    belowBarData: BarAreaData(
+                        show: true, color: Colors.blue.withOpacity(0.3)),
+                  ),
+                ],
               ),
-              LineChartBarData(
-                spots: p.ahead_prices
-                    .asMap()
-                    .entries
-                    .map((e) => FlSpot(
-                        p.day_prices.length.toDouble() - 1 + e.key.toDouble(),
-                        e.value.item2))
-                    .toList(),
-                isCurved: true,
-                color: Colors.blue,
-                barWidth: 2,
-                dashArray: [10, 10],
-                isStrokeCapRound: true,
-                dotData: FlDotData(show: false),
-                belowBarData: BarAreaData(
-                    show: true, color: Colors.blue.withOpacity(0.3)),
-              ),
-            ],
-          ),
+            ),
+            Align(
+                alignment: Alignment.topLeft,
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.8),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(10))),
+                  margin: EdgeInsets.only(
+                      left: MediaQuery.of(context).size.width / 20.0,
+                      top: MediaQuery.of(context).size.width / 20.0),
+                  padding: const EdgeInsets.all(10),
+                  child: Text.rich(TextSpan(children: [
+                    TextSpan(
+                        text: p.currentSpot?.toStringAsFixed(2) ?? '',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w400, fontSize: 24)),
+                    const TextSpan(
+                        text: 'c/kWh',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w400, fontSize: 12)),
+                  ])),
+                ))
+          ],
         );
       }
     });
