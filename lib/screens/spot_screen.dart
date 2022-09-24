@@ -32,6 +32,26 @@ class PriceProvider extends ChangeNotifier {
         prices.length;
   }
 
+  Tuple2<DateTime, DateTime> getPeakHours(
+      List<Tuple2<DateTime, double>> prices) {
+    // Get highest value
+    final max = getMaxValue(prices);
+    // Get average value
+    final average = getAverage(prices);
+    // Get all values, on either side of the maximum value, that are above the average
+    // Iterate first to the left
+    final left = prices
+        .takeWhile((element) => element.item1.isBefore(max.item1))
+        .where((element) => element.item2 > average)
+        .toList();
+    // Then to the right
+    final right = prices
+        .skipWhile((element) => element.item1.isBefore(max.item1))
+        .where((element) => element.item2 > average)
+        .toList();
+    return Tuple2(left.first.item1, right.last.item1);
+  }
+
   PriceProvider() {
     fetchSpot();
   }
@@ -296,6 +316,39 @@ class SpotScreen extends StatelessWidget {
                     ),
                     Text(
                       '${p.getAverage(p.ahead_prices).toStringAsFixed(2)} c/kWh',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 20.0),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Display peak hours
+            SliverToBoxAdapter(
+              child: Container(
+                margin: _listItemMargin,
+                padding: const EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade700,
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Peak hours',
+                            style: Theme.of(context).textTheme.headline6),
+                        Text(
+                          'Tomorrow',
+                          style: Theme.of(context).textTheme.subtitle1,
+                        )
+                      ],
+                    ),
+                    Text(
+                      '${p.getPeakHours(p.ahead_prices).item1.hour.toString()}:00 - ${p.getPeakHours(p.ahead_prices).item2.hour.toString()}:00',
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 20.0),
                     ),
