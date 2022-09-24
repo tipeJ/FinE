@@ -17,6 +17,16 @@ class PriceProvider extends ChangeNotifier {
   double? maxValue;
   double? minValue;
 
+  Tuple2<DateTime, double> getMaxValue(List<Tuple2<DateTime, double>> prices) {
+    return prices.reduce(
+        (value, element) => value.item2 > element.item2 ? value : element);
+  }
+
+  Tuple2<DateTime, double> getMinValue(List<Tuple2<DateTime, double>> prices) {
+    return prices.reduce(
+        (value, element) => value.item2 < element.item2 ? value : element);
+  }
+
   PriceProvider() {
     fetchSpot();
   }
@@ -136,45 +146,48 @@ class SpotScreen extends StatelessWidget {
       if (p.day_prices.isEmpty) {
         return const Center(child: CircularProgressIndicator());
       } else {
-        return CustomScrollView(slivers: [
-          SliverToBoxAdapter(
-            child: Card(
-              margin: const EdgeInsets.all(25.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Container(
-                height: 400.0,
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.blue.shade400, Colors.blue.shade700],
-                )),
-                child: Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          top: 20.0, left: 35.0, right: 35.0),
-                      child: _getLineChart(p),
-                    ),
-                    _getPriceIndicator(context, p)
-                  ],
+        return SizedBox(
+          height: MediaQuery.of(context).size.height,
+          child: CustomScrollView(slivers: [
+            SliverToBoxAdapter(
+              child: Card(
+                margin:
+                    const EdgeInsets.only(left: 25.0, right: 25.0, top: 25.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Container(
+                  height: 400.0,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.blue.shade400, Colors.blue.shade700],
+                  )),
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 20.0, left: 35.0, right: 35.0),
+                        child: _getLineChart(p),
+                      ),
+                      _getPriceIndicator(context, p)
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          // Indicator for highest price
-          SliverToBoxAdapter(
-            child: Card(
-              color: Colors.blue.shade700,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              clipBehavior: Clip.antiAlias,
+            // Indicator for highest price
+            SliverToBoxAdapter(
               child: Container(
-                // padding: const EdgeInsets.all(8.0),
+                margin:
+                    const EdgeInsets.only(left: 25.0, right: 25.0, top: 25.0),
+                padding: const EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade700,
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -182,24 +195,79 @@ class SpotScreen extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Highest price'),
+                        Text('Highest price',
+                            style: Theme.of(context).textTheme.headline6),
                         Text(
-                          'Today',
+                          'Tomorrow',
                           style: Theme.of(context).textTheme.subtitle1,
                         )
                       ],
                     ),
-                    Text(
-                      p.maxValue!.toStringAsFixed(2) + ' c/kWh',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 20.0),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${p.getMaxValue(p.ahead_prices).item2.toStringAsFixed(2)} c/kWh',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20.0),
+                        ),
+                        Text(
+                          p.getMaxValue(p.ahead_prices).item1.hour.toString() +
+                              ':00',
+                          style: Theme.of(context).textTheme.subtitle1,
+                        )
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
-          ),
-        ]);
+            // Indicator for lowest price
+            SliverToBoxAdapter(
+              child: Container(
+                margin:
+                    const EdgeInsets.only(left: 25.0, right: 25.0, top: 25.0),
+                padding: const EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade700,
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Lowest price',
+                            style: Theme.of(context).textTheme.headline6),
+                        Text(
+                          'Tomorrow',
+                          style: Theme.of(context).textTheme.subtitle1,
+                        )
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${p.getMinValue(p.ahead_prices).item2.toStringAsFixed(2)} c/kWh',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20.0),
+                        ),
+                        Text(
+                          p.getMinValue(p.ahead_prices).item1.hour.toString() +
+                              ':00',
+                          style: Theme.of(context).textTheme.subtitle1,
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ]),
+        );
       }
     });
   }
@@ -289,7 +357,17 @@ class SpotScreen extends StatelessWidget {
         titlesData: FlTitlesData(
             show: true,
             leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: AxisTitles(
+                sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: 25,
+                    reservedSize: 20,
+                    getTitlesWidget: (value, meta) =>
+                        value == meta.max || value == meta.min
+                            ? const SizedBox()
+                            : Text(value.round().toString(),
+                                style: const TextStyle(
+                                    color: Colors.white70, fontSize: 12)))),
             bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
             topTitles: AxisTitles(
                 axisNameSize: 16,
