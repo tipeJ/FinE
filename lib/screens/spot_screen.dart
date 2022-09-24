@@ -36,18 +36,23 @@ class PriceProvider extends ChangeNotifier {
       List<Tuple2<DateTime, double>> prices) {
     // Get highest value
     final max = getMaxValue(prices);
-    // Get average value
-    final average = getAverage(prices);
-    // Get all values, on either side of the maximum value, that are above the average
+    // Get top 75th percentile
+    final top75 = prices
+        .where((element) => element.item2 > max.item2 * 0.75)
+        .toList()
+        .first
+        .item2
+        .floor();
+    // Get all values, on either side of the maximum value, that are above the top75
     // Iterate first to the left
     final left = prices
         .takeWhile((element) => element.item1.isBefore(max.item1))
-        .where((element) => element.item2 > average)
+        .where((element) => element.item2 > top75)
         .toList();
     // Then to the right
     final right = prices
         .skipWhile((element) => element.item1.isBefore(max.item1))
-        .where((element) => element.item2 > average)
+        .where((element) => element.item2 > top75)
         .toList();
     return Tuple2(left.first.item1, right.last.item1);
   }
