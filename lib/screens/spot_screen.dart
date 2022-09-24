@@ -27,6 +27,11 @@ class PriceProvider extends ChangeNotifier {
         (value, element) => value.item2 < element.item2 ? value : element);
   }
 
+  double getAverage(List<Tuple2<DateTime, double>> prices) {
+    return prices.fold(0.0, (sum, element) => sum + element.item2) /
+        prices.length;
+  }
+
   PriceProvider() {
     fetchSpot();
   }
@@ -139,6 +144,8 @@ class PriceProvider extends ChangeNotifier {
 
 class SpotScreen extends StatelessWidget {
   const SpotScreen({Key? key}) : super(key: key);
+  static const _listItemMargin =
+      EdgeInsets.only(left: 25.0, right: 25.0, top: 25.0);
 
   @override
   Widget build(BuildContext context) {
@@ -151,8 +158,7 @@ class SpotScreen extends StatelessWidget {
           child: CustomScrollView(slivers: [
             SliverToBoxAdapter(
               child: Card(
-                margin:
-                    const EdgeInsets.only(left: 25.0, right: 25.0, top: 25.0),
+                margin: _listItemMargin,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
                 ),
@@ -181,8 +187,7 @@ class SpotScreen extends StatelessWidget {
             // Indicator for highest price
             SliverToBoxAdapter(
               child: Container(
-                margin:
-                    const EdgeInsets.only(left: 25.0, right: 25.0, top: 25.0),
+                margin: _listItemMargin,
                 padding: const EdgeInsets.all(10.0),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade700,
@@ -225,8 +230,7 @@ class SpotScreen extends StatelessWidget {
             // Indicator for lowest price
             SliverToBoxAdapter(
               child: Container(
-                margin:
-                    const EdgeInsets.only(left: 25.0, right: 25.0, top: 25.0),
+                margin: _listItemMargin,
                 padding: const EdgeInsets.all(10.0),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade700,
@@ -261,6 +265,39 @@ class SpotScreen extends StatelessWidget {
                           style: Theme.of(context).textTheme.subtitle1,
                         )
                       ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Average price
+            SliverToBoxAdapter(
+              child: Container(
+                margin: _listItemMargin,
+                padding: const EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade700,
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Average price',
+                            style: Theme.of(context).textTheme.headline6),
+                        Text(
+                          'Tomorrow',
+                          style: Theme.of(context).textTheme.subtitle1,
+                        )
+                      ],
+                    ),
+                    Text(
+                      '${p.getAverage(p.ahead_prices).toStringAsFixed(2)} c/kWh',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 20.0),
                     ),
                   ],
                 ),
