@@ -31,15 +31,7 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(
         title: Text(title),
       ),
-      body: Column(
-        children: [
-          SizedBox(height: 10),
-          SizedBox(
-            child: child_screen,
-            height: 500,
-          ),
-        ],
-      ),
+      body: child_screen,
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
