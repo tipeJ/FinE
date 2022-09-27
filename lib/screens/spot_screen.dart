@@ -485,7 +485,7 @@ class SpotScreen extends StatelessWidget {
                 .toList(),
             isCurved: true,
             color: Colors.white,
-            barWidth: 3.5,
+            barWidth: 2.5,
             isStrokeCapRound: true,
             dotData: FlDotData(show: false),
             belowBarData:
@@ -501,8 +501,8 @@ class SpotScreen extends StatelessWidget {
                   .toList(),
               isCurved: true,
               color: Colors.white,
-              barWidth: 3.5,
-              dashArray: [10, 10],
+              barWidth: 2.5,
+              dashArray: [8, 3],
               isStrokeCapRound: true,
               dotData: FlDotData(
                   show: true,
