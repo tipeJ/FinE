@@ -200,7 +200,7 @@ class SpotScreen extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(
-                            top: 20.0, left: 35.0, right: 35.0),
+                            top: 15.0, left: 15.0, right: 15.0),
                         child: _getLineChart(p),
                       ),
                       _getPriceIndicator(context, p)
