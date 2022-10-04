@@ -21,7 +21,7 @@ class _MainScreenState extends State<MainScreen> {
     switch (_currentTab) {
       case _MainScreenTab.statistics:
         child_screen = const StatisticsScreen();
-        title = 'Statistics';
+        title = 'Energy Production and Consumption';
         break;
       default:
         child_screen = const SpotScreen();
