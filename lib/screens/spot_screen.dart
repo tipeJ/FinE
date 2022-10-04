@@ -48,6 +48,14 @@ class PriceProvider extends ChangeNotifier {
     return '${date.day}.${date.month}';
   }
 
+  Tuple2<DateTime, double> getSpotByIndex(int index) {
+    if (index < day_prices.length) {
+      return day_prices[index];
+    } else {
+      return ahead_prices[index - day_prices.length + 1];
+    }
+  }
+
   Tuple2<DateTime, DateTime> getPeakHours(
       List<Tuple2<DateTime, double>> prices) {
     // Get highest value
@@ -485,7 +493,18 @@ class SpotScreen extends StatelessWidget {
   LineChart _getLineChart(PriceProvider p) {
     return LineChart(
       LineChartData(
-        lineTouchData: LineTouchData(enabled: true),
+        lineTouchData: LineTouchData(
+            enabled: true,
+            touchTooltipData: LineTouchTooltipData(
+              getTooltipItems: (touchedSpots) => touchedSpots.map((spot) {
+                int index = spot.x.round();
+                final s = p.getSpotByIndex(index);
+                return LineTooltipItem(
+                  '${spot.y.toStringAsFixed(2)} c/kWh\n${s.item1.hour}:${s.item1.minute}',
+                  const TextStyle(color: Colors.white),
+                );
+              }).toList(),
+            )),
         gridData: FlGridData(show: false, drawHorizontalLine: false),
         titlesData: FlTitlesData(
             show: true,
