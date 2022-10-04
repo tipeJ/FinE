@@ -49,12 +49,14 @@ class PriceProvider extends ChangeNotifier {
         .takeWhile((element) => element.item1.isBefore(max.item1))
         .where((element) => element.item2 > top75)
         .toList();
+    final left_item = left.isNotEmpty ? left.first : max;
     // Then to the right
     final right = prices
         .skipWhile((element) => element.item1.isBefore(max.item1))
         .where((element) => element.item2 > top75)
         .toList();
-    return Tuple2(left.first.item1, right.last.item1);
+    final right_item = right.isNotEmpty ? right.first : max;
+    return Tuple2(left_item.item1, right_item.item1);
   }
 
   PriceProvider() {
