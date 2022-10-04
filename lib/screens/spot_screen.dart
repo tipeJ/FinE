@@ -123,10 +123,10 @@ class PriceProvider extends ChangeNotifier {
       var timeInterval = period.first.findElements('timeInterval').first;
       // Find start
       var timeStart = timeInterval.findElements('start').first.text;
-      periodStart = DateTime.parse(timeStart);
+      periodStart = DateTime.parse(timeStart).toLocal();
       // Find end
       var timeEnd = timeInterval.findElements('end').first.text;
-      periodEnd = DateTime.parse(timeEnd);
+      periodEnd = DateTime.parse(timeEnd).toLocal();
       // Get price.amount from points
       for (var point in points) {
         var price = convert_eur_MWH_to_cent_kWH(
