@@ -32,6 +32,22 @@ class PriceProvider extends ChangeNotifier {
         prices.length;
   }
 
+  String formatDay(DateTime date) {
+    // If the date is today, return "Today"
+    if (date.day == DateTime.now().day &&
+        date.month == DateTime.now().month &&
+        date.year == DateTime.now().year) {
+      return 'Today';
+    }
+    // If the date is tomorrow, return "Tomorrow"
+    if (date.day == DateTime.now().day + 1 &&
+        date.month == DateTime.now().month &&
+        date.year == DateTime.now().year) {
+      return 'Tomorrow';
+    }
+    return '${date.day}.${date.month}';
+  }
+
   Tuple2<DateTime, DateTime> getPeakHours(
       List<Tuple2<DateTime, double>> prices) {
     // Get highest value
@@ -230,7 +246,7 @@ class SpotScreen extends StatelessWidget {
                         Text('Highest price',
                             style: Theme.of(context).textTheme.headline6),
                         Text(
-                          'Tomorrow',
+                          'Next ${p.ahead_prices.length} hours',
                           style: Theme.of(context).textTheme.subtitle1,
                         )
                       ],
@@ -245,7 +261,8 @@ class SpotScreen extends StatelessWidget {
                         ),
                         Text(
                           p.getMaxValue(p.ahead_prices).item1.hour.toString() +
-                              ':00',
+                              ':00 ' +
+                              p.formatDay(p.getMaxValue(p.ahead_prices).item1),
                           style: Theme.of(context).textTheme.subtitle1,
                         )
                       ],
@@ -273,7 +290,7 @@ class SpotScreen extends StatelessWidget {
                         Text('Lowest price',
                             style: Theme.of(context).textTheme.headline6),
                         Text(
-                          'Tomorrow',
+                          'Next ${p.ahead_prices.length} hours',
                           style: Theme.of(context).textTheme.subtitle1,
                         )
                       ],
@@ -288,7 +305,8 @@ class SpotScreen extends StatelessWidget {
                         ),
                         Text(
                           p.getMinValue(p.ahead_prices).item1.hour.toString() +
-                              ':00',
+                              ':00 ' +
+                              p.formatDay(p.getMinValue(p.ahead_prices).item1),
                           style: Theme.of(context).textTheme.subtitle1,
                         )
                       ],
@@ -316,7 +334,7 @@ class SpotScreen extends StatelessWidget {
                         Text('Average price',
                             style: Theme.of(context).textTheme.headline6),
                         Text(
-                          'Tomorrow',
+                          'Next ${p.ahead_prices.length} hours',
                           style: Theme.of(context).textTheme.subtitle1,
                         )
                       ],
@@ -349,16 +367,12 @@ class SpotScreen extends StatelessWidget {
                         Text('Peak hours',
                             style: Theme.of(context).textTheme.headline6),
                         Text(
-                          'Tomorrow',
+                          'Next ${p.ahead_prices.length} hours',
                           style: Theme.of(context).textTheme.subtitle1,
                         )
                       ],
                     ),
-                    Text(
-                      '${p.getPeakHours(p.ahead_prices).item1.hour.toString()}:00 - ${p.getPeakHours(p.ahead_prices).item2.hour.toString()}:00',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 20.0),
-                    ),
+                    _getPeakHoursIndicator(p, context),
                   ],
                 ),
               ),
@@ -367,6 +381,28 @@ class SpotScreen extends StatelessWidget {
         );
       }
     });
+  }
+
+  Column _getPeakHoursIndicator(PriceProvider p, BuildContext context) {
+    final peakHours = p.getPeakHours(p.ahead_prices);
+    String time_indicator = p.formatDay(peakHours.item1);
+    if (peakHours.item1.day != peakHours.item2.day) {
+      time_indicator =
+          '${p.formatDay(peakHours.item1)} - ${p.formatDay(peakHours.item2)}';
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          '${peakHours.item1.hour.toString()}:00 - ${peakHours.item2.hour.toString()}:00',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+        ),
+        Text(
+          time_indicator,
+          style: Theme.of(context).textTheme.subtitle1,
+        )
+      ],
+    );
   }
 
   Widget _sideTitleWidget(PriceProvider p, double value, TitleMeta meta) {
