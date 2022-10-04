@@ -248,6 +248,7 @@ class StatisticsScreen extends StatelessWidget {
                   topTitles: AxisTitles(
                       sideTitles: SideTitles(
                           showTitles: true,
+                          interval: p.energy_production.length / 7,
                           getTitlesWidget: (value, meta) =>
                               _getSideTitlesWidget(value, meta, p))),
                   bottomTitles:
