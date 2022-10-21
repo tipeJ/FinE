@@ -253,8 +253,16 @@ class StatisticsScreen extends StatelessWidget {
                               _getSideTitlesWidget(value, meta, p))),
                   bottomTitles:
                       AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  rightTitles:
-                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 40,
+                    interval: 2000,
+                    getTitlesWidget: (value, meta) => Text(
+                        value.toInt().toString(),
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 12)),
+                  )),
                   leftTitles:
                       AxisTitles(sideTitles: SideTitles(showTitles: false))),
               borderData: FlBorderData(
