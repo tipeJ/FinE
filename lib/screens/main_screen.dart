@@ -42,10 +42,10 @@ class _MainScreenState extends State<MainScreen> {
             icon: Icon(Icons.euro),
             label: 'Price',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu),
-            label: 'More',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.menu),
+          //   label: 'More',
+          // ),
         ],
         currentIndex: _MainScreenTab.values.indexOf(_currentTab),
         selectedItemColor: Colors.amber[800],
