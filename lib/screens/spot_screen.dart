@@ -16,6 +16,7 @@ class PriceProvider extends ChangeNotifier {
   double? currentSpot;
   double? maxValue;
   double? minValue;
+  String? errorMesssage;
 
   Tuple2<DateTime, double> getMaxValue(List<Tuple2<DateTime, double>> prices) {
     return prices.reduce(
@@ -103,8 +104,27 @@ class PriceProvider extends ChangeNotifier {
       'periodEnd':
           _format_datetime_entsoe(DateTime.now().add(const Duration(days: 2))),
     };
-    var response = await http.get(Uri.https(entsoe_api_url, '/api', params),
-        headers: headers);
+    // Make timeout 10 seconds
+    const timeout = Duration(seconds: 7);
+    late http.Response response;
+    try {
+      response = await http
+          .get(Uri.https(entsoe_api_url, '/api', params), headers: headers)
+          .timeout(timeout, onTimeout: () {
+        return http.Response('', 408);
+      });
+      if (response.statusCode != 200) {
+        errorMesssage = 'Error ${response.statusCode}';
+        notifyListeners();
+        return;
+      } else {
+        errorMesssage = null;
+      }
+    } catch (e) {
+      errorMesssage = 'Error: ${e.toString()}';
+      notifyListeners();
+      return;
+    }
     // Parse XML
     var document = XmlDocument.parse(response.body);
     // Parse document
@@ -201,7 +221,11 @@ class SpotScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<PriceProvider>(builder: (_, p, __) {
-      if (p.day_prices.isEmpty) {
+      if (p.errorMesssage != null) {
+        return Center(
+          child: Text(p.errorMesssage!),
+        );
+      } else if (p.day_prices.isEmpty) {
         return const Center(child: CircularProgressIndicator());
       } else {
         return SizedBox(
