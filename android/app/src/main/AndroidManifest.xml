@@ -1,7 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.fine">
+   <uses-permission android:name="android.permission.INTERNET" />
    <application
-        android:label="fine"
+        android:label="FinE"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity
