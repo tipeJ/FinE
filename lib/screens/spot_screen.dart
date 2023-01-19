@@ -522,6 +522,13 @@ class SpotScreen extends StatelessWidget {
             touchTooltipData: LineTouchTooltipData(
               getTooltipItems: (touchedSpots) => touchedSpots.map((spot) {
                 int index = spot.x.round();
+                if (index == p.day_prices.length - 1 && spot.barIndex == 0) {
+                  // Workaround for duplicate indicator
+                  return LineTooltipItem(
+                    '',
+                    const TextStyle(color: Colors.white, fontSize: 0),
+                  );
+                }
                 final s = p.getSpotByIndex(index);
                 return LineTooltipItem(
                   '${spot.y.toStringAsFixed(2)} c/kWh\n ${s.item1.hour.toString().padLeft(2, '0')}:${s.item1.minute.toString().padLeft(2, '0')}',
