@@ -524,7 +524,7 @@ class SpotScreen extends StatelessWidget {
                 int index = spot.x.round();
                 final s = p.getSpotByIndex(index);
                 return LineTooltipItem(
-                  '${spot.y.toStringAsFixed(2)} c/kWh\n${s.item1.hour}:${s.item1.minute}',
+                  '${spot.y.toStringAsFixed(2)} c/kWh\n ${s.item1.hour.toString().padLeft(2, '0')}:${s.item1.minute.toString().padLeft(2, '0')}',
                   const TextStyle(color: Colors.white),
                 );
               }).toList(),
