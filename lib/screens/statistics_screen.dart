@@ -14,6 +14,10 @@ import 'package:fl_chart/fl_chart.dart';
 class StatisticsProvider extends ChangeNotifier {
   List<_TimeSeriesEnergy> energy_production = [];
   List<_TimeSeriesEnergy> energy_consumption = [];
+  List<_TimeSeriesEnergy> wind_production = [];
+  List<_TimeSeriesEnergy> solar_production = [];
+  List<_TimeSeriesEnergy> hydro_production = [];
+  List<_TimeSeriesEnergy> nuclear_production = [];
 
   StatisticsProvider() {
     fetchProductionConsumption();
@@ -62,7 +66,49 @@ class StatisticsProvider extends ChangeNotifier {
         .map((e) =>
             _TimeSeriesEnergy(DateTime.parse(e['start_time']), e['value']))
         .toList();
+    wind_production = (await fetchWindProduction())
+        .map((e) =>
+            _TimeSeriesEnergy(DateTime.parse(e['start_time']), e['value']))
+        .toList();
+    nuclear_production = (await fetchNuclearProduction())
+        .map((e) => _TimeSeriesEnergy(
+            DateTime.parse(e['start_time']), e['value'].round()))
+        .toList();
     notifyListeners();
+  }
+
+  Future<List> fetchWindProduction() async {
+    final headers = {
+      'x_api-key': fingrid_api_key,
+      HttpHeaders.contentTypeHeader: 'application/json',
+    };
+    final params = {
+      'start_time':
+          _format_datetime(DateTime.now().subtract(const Duration(days: 7))),
+      'end_time': _format_datetime(DateTime.now()),
+    };
+    final response = await http.get(
+        Uri.https(fingrid_api_url,
+            '/v1/variable/$FIN_WIND_PRODUCTION/events/json', params),
+        headers: headers);
+    return jsonDecode(response.body);
+  }
+
+  Future<List> fetchNuclearProduction() async {
+    final headers = {
+      'x_api-key': fingrid_api_key,
+      HttpHeaders.contentTypeHeader: 'application/json',
+    };
+    final params = {
+      'start_time':
+          _format_datetime(DateTime.now().subtract(const Duration(days: 7))),
+      'end_time': _format_datetime(DateTime.now()),
+    };
+    final response = await http.get(
+        Uri.https(fingrid_api_url,
+            '/v1/variable/$FIN_NUCLEAR_PRODUCTION/events/json', params),
+        headers: headers);
+    return jsonDecode(response.body);
   }
 
   // Get minimum values for energy production and consumption
@@ -126,6 +172,13 @@ class StatisticsScreen extends StatelessWidget {
                         ],
                       )),
             ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Consumer<StatisticsProvider>(
+            builder: (_, p, __) => p.wind_production.isEmpty
+                ? Icon(Icons.help)
+                : _getDonutChart(context, p),
           ),
         )
       ],
@@ -285,6 +338,45 @@ class StatisticsScreen extends StatelessWidget {
     return Text(
       '${time.day}.${time.month}',
       style: TextStyle(color: Colors.white),
+    );
+  }
+
+  Widget _getDonutChart(BuildContext c, StatisticsProvider p) {
+    return Container(
+      width: min(MediaQuery.of(c).size.width / 2.5, 400),
+      height: min(MediaQuery.of(c).size.width / 2.5, 400),
+      margin: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(20.0),
+      child: PieChart(
+        PieChartData(
+          sections: [
+            PieChartSectionData(
+              color: Colors.greenAccent,
+              value: p.nuclear_production.last.value.toDouble(),
+              badgeWidget: const Icon(Icons.flash_on),
+              showTitle: false,
+              title: 'Nuclear MW',
+              radius: 50,
+              titleStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
+            PieChartSectionData(
+              color: Colors.redAccent,
+              value: p.wind_production.last.value.toDouble(),
+              badgeWidget: const Icon(Icons.wind_power),
+              showTitle: false,
+              title: 'Wind MW',
+              radius: 50,
+              titleStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
